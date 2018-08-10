@@ -1,0 +1,38 @@
+{
+    "interactionModel": {
+        "languageModel": {
+            "invocationName": "where's william",
+            "intents": [
+                {
+                    "name": "AMAZON.FallbackIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.CancelIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.HelpIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.StopIntent",
+                    "samples": []
+                },
+                {
+                    "name": "going",
+                    "slots": [],
+                    "samples": [
+                        "about to be",
+                        "next",
+                        "going to",
+                        "travelling to",
+                        "going next",
+                        "going"
+                    ]
+                }
+            ],
+            "types": []
+        }
+    }
+}
