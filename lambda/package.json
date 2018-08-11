@@ -1,0 +1,29 @@
+{
+  "name": "wheres-william",
+  "version": "0.0.0",
+  "description": "A lambda compatible application that works with Amazon alexa to describe where I currently am",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wabradshaw/wheres-william"
+  },
+  "keywords": [
+    "alexa",
+    "lambda",
+    "location",
+    "nlg",
+    "language",
+    "travel"
+  ],
+  "author": "William Bradshaw <w.a.bradshaw@gmail.com> (http://wabradshaw.com)",
+  "license": "Apache License",
+  "bugs": {
+    "url": "https://github.com/wabradshaw/wheres-william/issues"
+  },
+  "dependencies": {
+    "alexa-sdk": "~1.0.25"
+  }
+}
