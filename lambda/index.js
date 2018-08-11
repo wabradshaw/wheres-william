@@ -87,7 +87,14 @@ function generateNowResponse(data){
 		return "William has failed to keep this up to date!";
 	}
 	
-	if(data.current.endTime == undefined){
+	var sameDay = data.current.startTime.dayOfMonth == new Date().getMonth() - 1;
+	var travelling = sameDay && data.current.startTime.hourOfDay - new Date().getHours() < 6;
+	
+	if(travelling){
+		return "William is travelling to " + data.current.name + ", " + data.current.country + ".";
+	} else if(sameDay) {
+		return "William has just arrived in " + data.current.name + ", " + data.current.country + ".";
+	} else if(data.current.endTime == undefined){
 		return "William is in " + data.current.name + ", " + data.current.country + " for the time being.";
 	} else {
 		return "William is in " + data.current.name + ", " + data.current.country + " until the " + expressDate(data.current.endTime, null) + ".";
