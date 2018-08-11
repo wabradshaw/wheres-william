@@ -80,12 +80,31 @@ function generateGoingResponse(data){
 	}
 }
 
+function generateNowResponse(data){
+	console.log("Complete:");
+	console.log(data);
+	if(data.current.name == undefined){
+		return "William has failed to keep this up to date!";
+	}
+	
+	if(data.current.endTime == undefined){
+		return "William is in " + data.current.name + ", " + data.current.country + " for the time being.";
+	} else {
+		return "William is in " + data.current.name + ", " + data.current.country + " until the " + expressDate(data.current.endTime, null) + ".";
+	}
+}
+
 const handlers = {
     'going' : function(){
 		console.log("Finding out where William's going next..");
 		addNextLocation({})
 		.then(data => addCurrentLocation(data))
 		.then(data => this.emit(':tell', generateGoingResponse(data)));
+    },
+	'now' : function(){
+		console.log("Finding out where William is now..");
+		addCurrentLocation({})
+		.then(data => this.emit(':tell', generateNowResponse(data)));
     }
 }
 
