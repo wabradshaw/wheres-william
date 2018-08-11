@@ -76,7 +76,7 @@ function generateGoingResponse(data){
 			return "William doesn't know where he's going next, he just knows that he's leaving " + data.current.name + " on the " + expressDate(data.current.endTime, null) + ".";		
 		}
 	} else {
-		return "William is going to fill this in later.";
+		return "William is off to " + data.next.name + ", " + data.next.country + " on the " + expressDate(data.next.startTime, null) + ".";
 	}
 }
 
