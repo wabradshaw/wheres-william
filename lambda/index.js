@@ -3,6 +3,32 @@ const request = require('request-promise');
 
 const historyUrl = "http://54.191.146.40:8080/travel-history/";
 
+var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+/**
+ * Converts a day of the month into an ordinal (e.g. 1st, 2nd, 3rd).
+ */
+function asOrdinal(day){
+	switch(day){
+		case 1:
+		case 21: 
+		case 31:
+			return day + "st";
+			break;
+		case 2: 
+		case 22:
+			return day + "nd";
+			break;
+		case 3: 
+		case 23:
+			return day + "rd";
+			break;
+		default:
+			return day + "th";
+			break;
+	}
+}
+
 function addNextLocation(base){
 	return request({
 		url: historyUrl + "history/next",
@@ -27,11 +53,28 @@ function addCurrentLocation(base){
 	})
 }
 
+function expressDate(date, context){
+	var day = asOrdinal(date.dayOfMonth);
+	
+	var currentMonth = new Date().getMonth() + 1;
+	var month = currentMonth == date.monthOfYear ? "" : " of " + months[date.monthOfYear];
+	
+	return day + month;
+}
+
 function generateGoingResponse(data){
 	console.log("Complete:");
 	console.log(data);
+	if(data.current.name == undefined){
+		return "William has failed to keep this up to date!";
+	}
+	
 	if(data.next.name == undefined){
-		return "William hasn't decided where to go next, he's still in " + data.current.name + ".";
+		if(data.current.endTime == undefined){
+			return "William hasn't decided where to go next, he's still in " + data.current.name + ".";
+		} else {
+			return "William doesn't know where he's going next, he just knows that he's leaving " + data.current.name + " on the " + expressDate(data.current.endTime, null) + ".";		
+		}
 	} else {
 		return "William is going to fill this in later.";
 	}
