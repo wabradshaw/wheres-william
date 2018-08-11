@@ -30,6 +30,18 @@
                         "going next",
                         "going"
                     ]
+                },
+                {
+                    "name": "now",
+                    "slots": [],
+                    "samples": [
+                        "staying now",
+                        "staying",
+                        "today",
+                        "currently",
+                        "at the moment",
+                        "now"
+                    ]
                 }
             ],
             "types": []
