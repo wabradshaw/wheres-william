@@ -1,5 +1,6 @@
 const Alexa = require('alexa-sdk');
 const request = require('request-promise');
+const moment = require('moment');
 
 const historyUrl = "http://54.191.146.40:8080/travel-history/";
 
@@ -53,6 +54,18 @@ function addCurrentLocation(base){
 	})
 }
 
+function addHistoricLocation(base, date, name){
+	return request({
+		url: historyUrl + "history/at?date=" + date.format("YYYY-MM-DDTHH:mm:ss.SSSZ").replace("+", "%2b"),
+		transform: function (body){
+			console.log("Historic for " + name + ":");
+			console.log(body);
+			base[name] = body == "" ? {} : JSON.parse(body);
+			return base;
+		}
+	})
+}
+
 function expressDate(date, context){
 	var day = asOrdinal(date.dayOfMonth);
 	
@@ -101,6 +114,22 @@ function generateNowResponse(data){
 	}
 }
 
+function generateHistoricResponse(data){
+	console.log("Complete:");
+	console.log(data);
+	if(data.start == null && data.end == null){
+		return "William wasn't tracking his location then.";
+	} else if (data.end == null){
+		// This can only happend if there's something wrong with the data.
+		return "William was staying in " + data.end.name + ", " + data.end.country + ".";
+	} else if (data.start == null || data.start.name == data.end.name) {
+		return "William was staying in " + data.start.name + ", " + data.start.country + ".";
+	} else {
+		const firstCountry = data.start.country == data.end.country ? "" : ", " + data.start.country;
+		return "William was travelling between " + data.start.name + firstCountry + " and " + data.end.name + ", " + data.end.country + ".";
+	}
+}
+
 const handlers = {
     'going' : function(){
 		console.log("Finding out where William's going next..");
@@ -112,7 +141,32 @@ const handlers = {
 		console.log("Finding out where William is now..");
 		addCurrentLocation({})
 		.then(data => this.emit(':tell', generateNowResponse(data)));
-    }
+    },
+	'been' : function(){
+		console.log("Finding out where William's been..");
+		const dateSlot = this.event.request.intent.slots.date.value;
+		
+		if(dateSlot == null || dateSlot == undefined){
+			this.emit(":tell", "I'm sorry, I don't know when you're asking about. Please try again.");
+		} else {
+			const targetDate = moment(dateSlot);
+			targetDate.utcOffset(0);
+			
+			while(targetDate.isAfter(moment())){
+				targetDate.subtract(1, "year"); 
+			}
+			
+			const startOfDay = moment(targetDate);
+			startOfDay.startOf('day');
+			
+			const endOfDay = moment(targetDate);
+			endOfDay.endOf('day');
+			
+			addHistoricLocation({}, startOfDay, "start")
+			.then(data => addHistoricLocation(data, endOfDay, "end"))
+			.then(data => this.emit(':tell', generateHistoricResponse(data)));
+		}
+	}
 }
 
 exports.handler = (event, context, callback) => {
