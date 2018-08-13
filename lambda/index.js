@@ -30,6 +30,9 @@ function asOrdinal(day){
 	}
 }
 
+/**
+ * Adds the data for the next place I'm scheduled to visit to the supplied object under the "next" object. An empty object if nowhere is planned next.
+ */
 function addNextLocation(base){
 	return request({
 		url: historyUrl + "history/next",
@@ -42,6 +45,9 @@ function addNextLocation(base){
 	})
 }
 
+/**
+ * Adds the data for the current place I'm visiting to the supplied object under the "current" object. An empty object if I've forgotten to say where I am.
+ */
 function addCurrentLocation(base){
 	return request({
 		url: historyUrl + "history/current",
@@ -54,6 +60,9 @@ function addCurrentLocation(base){
 	})
 }
 
+/**
+ * Adds the data for the place I was at at a specific date-time to the to the supplied object under the supplied name. An empty object if no data is available for that time.
+ */
 function addHistoricLocation(base, date, name){
 	return request({
 		url: historyUrl + "history/at?date=" + date.format("YYYY-MM-DDTHH:mm:ss.SSSZ").replace("+", "%2b"),
@@ -66,7 +75,10 @@ function addHistoricLocation(base, date, name){
 	})
 }
 
-function expressDate(date, context){
+/**
+ * Converts a date into a string of the format "31st of July", where the month only appears if it isn't the current month.
+ */
+function expressDate(date){
 	var day = asOrdinal(date.dayOfMonth);
 	
 	var currentMonth = new Date().getMonth() + 1;
@@ -75,6 +87,13 @@ function expressDate(date, context){
 	return day + month;
 }
 
+/**
+ * Generates a response about where I'm going next. There are four possibilities:
+ * 0. I've failed to keep this up to date...
+ * 1. I haven't planned where I'm going next, at all.
+ * 2. I haven't planned where I'm going next, but know when I need to be there.
+ * 3. I know where I'm going next.
+ */
 function generateGoingResponse(data){
 	console.log("Complete:");
 	console.log(data);
@@ -86,13 +105,21 @@ function generateGoingResponse(data){
 		if(data.current.endTime == undefined){
 			return "William hasn't decided where to go next, he's still in " + data.current.name + ".";
 		} else {
-			return "William doesn't know where he's going next, he just knows that he's leaving " + data.current.name + " on the " + expressDate(data.current.endTime, null) + ".";		
+			return "William doesn't know where he's going next, he just knows that he's leaving " + data.current.name + " on the " + expressDate(data.current.endTime) + ".";		
 		}
 	} else {
-		return "William is off to " + data.next.name + ", " + data.next.country + " on the " + expressDate(data.next.startTime, null) + ".";
+		return "William is off to " + data.next.name + ", " + data.next.country + " on the " + expressDate(data.next.startTime) + ".";
 	}
 }
 
+/**
+ * Generates a response about where I currently am. There are five possibilities:
+ * 0. I've failed to keep this up to date...
+ * 1. I'm travelling to / scheduled to arrive somewhere.
+ * 2. I arrived somewhere today. 
+ * 3. I arrived a while ago, but don't know when I'm leaving.
+ * 4. I arrived a while ago, and I do know when I'm leaving.
+ */
 function generateNowResponse(data){
 	console.log("Complete:");
 	console.log(data);
@@ -110,10 +137,17 @@ function generateNowResponse(data){
 	} else if(data.current.endTime == undefined){
 		return "William is in " + data.current.name + ", " + data.current.country + " for the time being.";
 	} else {
-		return "William is in " + data.current.name + ", " + data.current.country + " until the " + expressDate(data.current.endTime, null) + ".";
+		return "William is in " + data.current.name + ", " + data.current.country + " until the " + expressDate(data.current.endTime) + ".";
 	}
 }
 
+/**
+ * Generates a response about where I was on a certain day. There are four possibilities:
+ * 0. I wasn't tracking my location then.
+ * 1. There's a gap in my data tracking, so I know where I was at the start of the day but not the end.
+ * 2. I was staying in the same place for the whole day.
+ * 3. I was travelling between two different places that day.
+ */
 function generateHistoricResponse(data){
 	console.log("Complete:");
 	console.log(data);
