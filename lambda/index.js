@@ -100,7 +100,7 @@ function generateNowResponse(data){
 		return "William has failed to keep this up to date!";
 	}
 	
-	var sameDay = data.current.startTime.dayOfMonth == new Date().getMonth() - 1;
+	var sameDay = data.current.startTime.dayOfMonth == new Date().getDate() && data.current.startTime.monthOfYear == new Date().getMonth() + 1;
 	var travelling = sameDay && data.current.startTime.hourOfDay - new Date().getHours() < 6;
 	
 	if(travelling){
