@@ -24,6 +24,7 @@
     "url": "https://github.com/wabradshaw/wheres-william/issues"
   },
   "dependencies": {
-    "alexa-sdk": "~1.0.25"
+    "alexa-sdk": "~1.0.25",
+    "amazon-date-parser": "~0.2.0"
   }
 }

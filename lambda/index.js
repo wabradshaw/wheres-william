@@ -1,10 +1,11 @@
 const Alexa = require('alexa-sdk');
+const AmazonDateParser = require('amazon-date-parser');
 const request = require('request-promise');
 const moment = require('moment');
 
 const historyUrl = "http://54.191.146.40:8080/travel-history/";
 
-var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
 /**
  * Converts a day of the month into an ordinal (e.g. 1st, 2nd, 3rd).
@@ -154,7 +155,7 @@ function generateHistoricResponse(data){
 	if(data.start == null && data.end == null){
 		return "William wasn't tracking his location then.";
 	} else if (data.end == null){
-		// This can only happend if there's something wrong with the data.
+		// This can only happen if there is something wrong with the data.
 		return "William was staying in " + data.end.name + ", " + data.end.country + ".";
 	} else if (data.start == null || data.start.name == data.end.name) {
 		return "William was staying in " + data.start.name + ", " + data.start.country + ".";
@@ -183,22 +184,29 @@ const handlers = {
 		if(dateSlot == null || dateSlot == undefined){
 			this.emit(":tell", "I'm sorry, I don't know when you're asking about. Please try again.");
 		} else {
-			const targetDate = moment(dateSlot);
-			targetDate.utcOffset(0);
+			const dateObject = new AmazonDateParser(dateSlot);
 			
-			while(targetDate.isAfter(moment())){
-				targetDate.subtract(1, "year"); 
+			const start = moment(dateObject.startDate);
+			start.utcOffset(0);
+			start.startOf('Day');
+			
+			const end = moment(dateObject.endDate);
+			end.utcOffset(0);
+			end.endOf('Day');
+			
+			while(start.isAfter(moment())){
+				start.subtract(1, "year"); 
+				end.subtract(1, "year"); 
 			}
 			
-			const startOfDay = moment(targetDate);
-			startOfDay.startOf('day');
+			if(start.format("YYYYMMDD") == end.format("YYYYMMDD")){
+				addHistoricLocation({}, start, "start")
+				.then(data => addHistoricLocation(data, end, "end"))
+				.then(data => this.emit(':tell', generateHistoricResponse(data)));
+			} else {
+				this.emit(':tell', "We're working on this now...");
+			}
 			
-			const endOfDay = moment(targetDate);
-			endOfDay.endOf('day');
-			
-			addHistoricLocation({}, startOfDay, "start")
-			.then(data => addHistoricLocation(data, endOfDay, "end"))
-			.then(data => this.emit(':tell', generateHistoricResponse(data)));
 		}
 	}
 }
