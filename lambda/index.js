@@ -223,7 +223,7 @@ function generateHistoricVisitsResponse(data){
 			var target = places[i];
 			var name = target.name;
 			if(uniquePlaces.has(target.name)){
-				name += " again";
+				name += " - again -";
 			} else {
 				uniquePlaces.add(target.name);
 			}
@@ -242,7 +242,7 @@ function generateHistoricVisitsResponse(data){
 			pastLocations.push({list: currentLocations, country: last});
 		}
 
-		var named = pastLocations.map(data => expressList(data.list, ",", "and") + " " + data.country);
+		var named = pastLocations.map(data => expressList(data.list, ",", "and") + " in " + data.country);
 
 		return "William visited " + expressList(named, ";", "; then he visited") + ".";
 	}
