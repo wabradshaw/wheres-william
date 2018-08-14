@@ -31,6 +31,24 @@ function asOrdinal(day){
 	}
 }
 
+function expressList(list, separator, conjunction){
+  var result = "";
+  
+  for(i = 0; i < list.length - 2; i++){
+  	result += list[i] + separator + " ";
+  }
+  
+  if(list.length > 1){
+  	result += list[list.length-2] + " " + conjunction + " ";
+  }
+  
+  if(list.length > 0){
+  	result += list[list.length-1];
+  }
+  
+  return result;
+}
+
 /**
  * Adds the data for the next place I'm scheduled to visit to the supplied object under the "next" object. An empty object if nowhere is planned next.
  */
@@ -71,6 +89,21 @@ function addHistoricLocation(base, date, name){
 			console.log("Historic for " + name + ":");
 			console.log(body);
 			base[name] = body == "" ? {} : JSON.parse(body);
+			return base;
+		}
+	})
+}
+
+/**
+ * Adds the data for the places where I was between two dates to the to the supplied object under the "history" object. An empty list if no data is available for that time.
+ */
+function addHistoricDuration(base, start, end){
+	return request({
+		url: historyUrl + "history/between?startDate=" + start.format("YYYY-MM-DDTHH:mm:ss.SSSZ").replace("+", "%2b") + "&endDate=" + end.format("YYYY-MM-DDTHH:mm:ss.SSSZ").replace("+", "%2b"),
+		transform: function (body){
+			console.log("Historic locations:");
+			console.log(body);
+			base.history = body == "" ? [] : JSON.parse(body);
 			return base;
 		}
 	})
@@ -165,6 +198,56 @@ function generateHistoricResponse(data){
 	}
 }
 
+/**
+ * Generates a response about where I was on a certain day. There are four possibilities:
+ * 0. I wasn't tracking my location then.
+ * 1. There's a gap in my data tracking, so I know where I was at the start of the day but not the end.
+ * 2. I was staying in the same place for the whole day.
+ * 3. I was travelling between two different places that day.
+ */
+function generateHistoricVisitsResponse(data){
+	console.log("Complete:");
+	console.log(data);
+	places = data.history;
+	if(places == null || places == undefined || places == []){
+		return "William wasn't tracking his location then.";
+	} else if (places.length == 1){		
+		return "William was staying in " + places[0].name + ", " + places[0].country + ".";
+	} else {
+		var uniquePlaces = new Set();
+		var pastLocations = [];
+		var currentLocations = [];
+		var last = null;
+
+		for(i = 0; i < places.length; i++){
+			var target = places[i];
+			var name = target.name;
+			if(uniquePlaces.has(target.name)){
+				name += " again";
+			} else {
+				uniquePlaces.add(target.name);
+			}
+			
+			if(last != null && last != target.country){    	
+				pastLocations.push({list: currentLocations, country: last});
+			  currentLocations = [];
+			}
+				
+			currentLocations.push(name);	
+			
+			last = target.country;
+		}
+
+		if(currentLocations.length > 0){
+			pastLocations.push({list: currentLocations, country: last});
+		}
+
+		var named = pastLocations.map(data => expressList(data.list, ",", "and") + " " + data.country);
+
+		return "William visited " + expressList(named, ";", "; then he visited") + ".";
+	}
+}
+
 const handlers = {
     'going' : function(){
 		console.log("Finding out where William's going next..");
@@ -204,7 +287,8 @@ const handlers = {
 				.then(data => addHistoricLocation(data, end, "end"))
 				.then(data => this.emit(':tell', generateHistoricResponse(data)));
 			} else {
-				this.emit(':tell', "We're working on this now...");
+				addHistoricDuration({}, start, end)
+				.then(data => this.emit(':tell', generateHistoricVisitsResponse(data)));
 			}
 			
 		}
