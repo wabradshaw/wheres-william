@@ -261,9 +261,15 @@ const handlers = {
 		.then(data => this.emit(':tell', generateNowResponse(data)));
     },
 	'Unhandled': function () {
-		console.log("Finding out where William is now..");
-		addCurrentLocation({})
-		.then(data => this.emit(':tell', generateNowResponse(data)));
+		if(this.event.request.intent == undefined){
+			this.emit('now');
+		} else {
+			this.emit('AMAZON.HelpIntent');
+		}
+	},
+	'AMAZON.HelpIntent': function () {
+		console.log("Seeking help..");
+		this.emit(':tell', 'Try asking "where\'s William now"<break strength="strong"/>, "where\'s William next"<break strength="strong"/> or something like <break strength="medium"/>"where\'s William been in May".');
 	},
 	'been' : function(){
 		console.log("Finding out where William's been..");
