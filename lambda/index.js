@@ -260,6 +260,11 @@ const handlers = {
 		addCurrentLocation({})
 		.then(data => this.emit(':tell', generateNowResponse(data)));
     },
+	'Unhandled': function () {
+		console.log("Finding out where William is now..");
+		addCurrentLocation({})
+		.then(data => this.emit(':tell', generateNowResponse(data)));
+	},
 	'been' : function(){
 		console.log("Finding out where William's been..");
 		const dateSlot = this.event.request.intent.slots.date.value;
