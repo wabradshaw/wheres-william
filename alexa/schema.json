@@ -13,7 +13,13 @@
                 },
                 {
                     "name": "AMAZON.HelpIntent",
-                    "samples": []
+                    "samples": [
+                        "what to say",
+                        "how to use it",
+                        "for a manual",
+                        "help",
+                        "for help"
+                    ]
                 },
                 {
                     "name": "AMAZON.StopIntent",
@@ -59,7 +65,17 @@
                         "been staying on {date}",
                         "visited on {date}",
                         "stayed on {date}",
-                        "been on {date}"
+                        "been on {date}",
+                        "been exploring {date}",
+                        "been staying {date}",
+                        "visited {date}",
+                        "stayed {date}",
+                        "been {date}",
+                        "been exploring in {date}",
+                        "been staying in {date}",
+                        "visited in {date}",
+                        "stayed in {date}",
+                        "been in {date}"
                     ]
                 }
             ],
