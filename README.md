@@ -5,6 +5,12 @@ Where's William is an Alexa skill that tracks where I am at any given time. With
 
 Currently Where's William is in beta, please let me know at w.a.bradshaw@gmail.com if you would like to be included.
 
+- [Commands](#commands)
+  * [Now](#now)
+  * [Going] (#going)
+  * [Been] (#been)
+- [Architecture](#architecture)
+  
 # Commands
 
 ## Now
